@@ -1,0 +1,38 @@
+en:
+  welcome: "Hello. Enter your name:"
+  valid_name: "Please enter a valid name"
+  greetings_user: "Hello, let's start"
+  welcome_to_calculator : "Welcome to calculator"
+  ask_for_first_number: "What is the first number?"
+  ask_for_second_number: "What is the second number?"
+  not_valid_input: "What you typed is not valid. Please try again"
+  result: "Your result is"
+  additionla_operation?: "do you want to perform another calculation? Y to calculate again"
+  bye_message: 'thanks for using the calculator. Bye!'
+  select_operator: "What operation would you like to perform? 1)Add 2)Substract 3)Multiply 4)Divide"
+  select_operator_rescue: 'You must type 1,2,3 or 4 based on the operation you want to perform'
+  adding: 'Adding ...'
+  substracting: 'Substracting ...'
+  multiplying: 'Multiplying ...'
+  dividing: 'Dividing ...'
+  first_number_is: 'Your first number is'
+  second_number_is: 'Your second number is'
+es:
+  welcome: "Hola , ingresa tu nombre:"
+  valid_name: "Por favor ingresa un nombre"
+  greetings_user: "Hola, empecemos"
+  welcome_to_calculator : "Te damos la bienvenida a la calculadora"
+  ask_for_first_number: "Cuál es el primer número?"
+  ask_for_second_number: "Cuál es el segundo número?"
+  not_valid_input: "Lo que escribiste no es válido. por favor intenta de nuevo"
+  result: "Tu resultado es"
+  additionla_operation?: "Quieres hacer otro cálculo? Escribe Y para calcular algo más"
+  select_operator: "Qué operación quieres hacer? 1)Suma 2)Resta 3)Multiplicación 4)División"
+  select_operator_rescue: 'Debes escribir  1,2,3 o 4 según la operación que quieras lelva a cabo'
+  bye_message: 'gracias por usa la calculador. Chao!'
+  adding: 'Sumando ...'
+  substracting: 'Restando ...'
+  multiplying: 'Multiplicando ...'
+  dividing: 'Dividiendo  ...'
+  first_number_is: ' Tu primer número es'
+  second_number_is: ' Tu segundo número es'

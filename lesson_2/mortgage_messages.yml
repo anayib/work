@@ -1,0 +1,10 @@
+welcome_message: "Welcome to The Mortgage Calculator"
+how_much: "How much money do you need"
+mortgage_result: 'Your montlhy payment would be of %{montlhy_payment}. Do you want to try anohter analysis?. Type  Y if Yes, N if not'
+requested_amount_confirmation: 'You loan amount request is %{p}'
+incorrect_imput: "What you typed is incorrect , Please type a valid loan amount"
+number_of_months_invitation: "Type the number of months you will need your loan for"
+number_of_months_input: "For how many months do you need the loan?. The max number of months is 9"
+loan_number_of_months: 'Your loan would be for %{n} months'
+wrong_input_number_of_months: "Error. You need to type the number of months you need the loan for. The max number of months is 9"
+bye_message:  "Great, thanks for using our services"
