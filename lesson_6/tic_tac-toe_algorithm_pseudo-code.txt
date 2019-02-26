@@ -1,0 +1,51 @@
+Descripción:
+El juego consiste en un tablero de 3*3 donde juegan dos personas marcando uno de los
+9 espacios por turno a la vez. Si alguna de las personas logra una fila vertical, horizontal,
+o diagonal de marcas, gana. Si el tablero está lleno y ninguno d elos jugadores logró
+la linea de 3 marcas, es un empate.
+
+Outline general
+1. Pedirle al usuario que marque el tablero
+2. Elcomputador marca el tablero
+3. El usaurio o el computador lograron una línea de marcas?
+  4. Si si, hay un ganador
+    Mostrar el ganador
+    Ir al punto 9
+  5. Si no
+    6.El tablero está lleno
+      7. Si, es un empate
+      8. No, volver al punto uno
+9. Preguntar al usaurio si quiere volver a jugador
+  10. Si?
+    11. Limpiar tablero
+    12 Volver al punto 1
+  11 No?
+10 Terminar programa
+
+Outline específico:
+1. Pedirle al usuario que marque el tablero
+  - crear un tablero de 3x3
+  - asignar el tablero a una variale llamada board
+  - tomar el input del usuario preguntandole que parte del tablero queire marcar
+  - asignarlo a una variable
+  - actualizar el tablero
+2. Elcomputador marca el tablero
+  - marcar el tablero de manera random
+    - Actualizar uno de los valores del tablero en cualquier posisición que no este marcada
+3. El usaurio o el computador lograron una línea de marcas?
+    - Determinar si alguno hizo línea
+      - Si si, deteminar quien
+        - mostrar ganador
+      - Si no
+        - Evaluar si todas las posiciones del tablero tienen un valor.
+          - Si si
+            - Detemrinar empate
+          - Si, no ir a punto 1
+    - Preguntar al usuario si queire volver a jugar
+      - Mostrar mensaje al usuario
+        - Capturar respuesta y asignarla a una variable
+        - Si la respuesta es si
+          - Limpiar tablero actual
+          - Volver al punto 1
+        - Si la respuesta es no
+4. Temrinar programa
