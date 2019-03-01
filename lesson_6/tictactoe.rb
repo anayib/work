@@ -1,19 +1,20 @@
-require 'pry'
-
 INITIAL_MARKER = " "
 PLAYER_MARKER = "X"
 COMPUTER_MARKER = "O"
-WINNIG_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
-               [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # colums
-               [[1, 5, 9], [3, 5, 7]] # diagonals
+FIRST_MOVE = 5
+WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
+                [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
+                [[1, 5, 9], [3, 5, 7]]
+
+NUMBER_OF_MATCHES_TO_WIN = 5
+FIRST_PLAYER = "choose"
 
 def prompt(msg)
   puts "=> #{msg}"
 end
 
-# rubocop:disable Metrics/AbcSize
 def display_board(brd)
-  system 'clear'
+  system('clear') || system('cls')
   puts "You are the #{PLAYER_MARKER}, computer is #{COMPUTER_MARKER}"
   puts ''
   puts '     |     |'
@@ -29,7 +30,6 @@ def display_board(brd)
   puts '     |     |'
   puts ''
 end
-# rubocop:enable Metrics/AbcSize
 
 def initialize_board
   new_board = {}
@@ -37,25 +37,97 @@ def initialize_board
   new_board
 end
 
+def define_first_player
+  loop do
+    prompt "Who you want to go first ?(me/computer)"
+    answer =  gets.chomp
+    if answer == "me"
+      return FIRST_PLAYER.replace "player"
+    elsif answer == "computer"
+      return FIRST_PLAYER.replace "computer"
+    else
+      prompt <<~MSG
+        Type \"me\" if you want to go first
+           Type \"computer\" if you want the computer to go first
+      MSG
+    end
+  end
+end
+
 def empty_squares(brd)
   brd.keys.select { |num| brd[num] == INITIAL_MARKER }
+end
+
+def place_piece!(board, current_player)
+  if current_player == "player"
+    player_places_piece!(board)
+  elsif current_player == "computer"
+    computer_places_piece!(board)
+  end
 end
 
 def player_places_piece!(brd)
   square = ''
   loop do
     prompt "Choose a square (#{joinor(empty_squares(brd))}):"
-    square = gets.chomp.to_i
+    square = gets.chomp
+    if square.size != 1 || !empty_squares(brd).include?(square.to_i)
+      prompt "Sorry. Your choice is not valid"
+    else
+      square = square.to_i
+    end
     break if empty_squares(brd).include?(square)
-
-    prompt "Sorry. Your choice is not valid"
   end
   brd[square] = PLAYER_MARKER
 end
 
+def find_at_risk_square(line, board, marker)
+  if board.values_at(*line).count(marker) == 2
+    board.select { |k, v| line.include?(k) && v == INITIAL_MARKER }.keys.first
+  end
+end
+
+def find_square_five(line, board, marker)
+  if line.include?(FIRST_MOVE) && board[FIRST_MOVE] == INITIAL_MARKER
+    board[FIRST_MOVE] = marker
+  end
+end
+
 def computer_places_piece!(brd)
-  square = empty_squares(brd).sample
+  square = nil
+
+  WINNING_LINES.each do |line|
+    square = find_at_risk_square(line, brd, COMPUTER_MARKER)
+    break if square
+  end
+
+  if !square
+    WINNING_LINES.each do |line|
+      square = find_at_risk_square(line, brd, PLAYER_MARKER)
+      break if square
+    end
+  end
+
+  if !square
+    WINNING_LINES.each do |line|
+      square = find_square_five(line, brd, COMPUTER_MARKER)
+      break if square
+    end
+  end
+
+  if !square
+    square = empty_squares(brd).sample
+  end
+
   brd[square] = COMPUTER_MARKER
+end
+
+def alternate_player(current_player)
+  if current_player == "player"
+    "computer"
+  elsif current_player == "computer"
+    "player"
+  end
 end
 
 def someone_wins?(brd)
@@ -63,24 +135,7 @@ def someone_wins?(brd)
 end
 
 def detect_winner(brd)
-  WINNIG_LINES.each do |line|
-    # if brd[line[0]] == PLAYER_MARKER &&
-    #    brd[line[1]] == PLAYER_MARKER &&
-    #    brd[line[2]] == PLAYER_MARKER
-    #   return 'Player'
-    # elsif
-    #    brd[line[0]] == COMPUTER_MARKER &&
-    #    brd[line[1]] == COMPUTER_MARKER &&
-    #    brd[line[2]] == COMPUTER_MARKER
-    #   return 'Computer'
-    # end
-    #other solution
-    # WINNIG_BOARD.each do |line|
-    # if brd.values_at(*line).all? {|value| value == "X"}  # Splat operator * (*line) pass all the elements in a array, one by one, into the method
-    #   return "Player wins"
-    # elsif brd.values_at(*line).all? {|value| value == "O"}
-    #   return "Computer wins"
-    # end
+  WINNING_LINES.each do |line|
     if brd.values_at(line[0], line[1], line[2]).count(PLAYER_MARKER) == 3
       return "Player"
     elsif brd.values_at(line[0], line[1], line[2]).count(COMPUTER_MARKER) == 3
@@ -90,66 +145,108 @@ def detect_winner(brd)
   nil
 end
 
+def player_won?(board)
+  true if detect_winner(board) == "Player"
+end
+
+def computer_won?(board)
+  true if detect_winner(board) == "Computer"
+end
+
 def board_full?(brd)
   empty_squares(brd).empty?
 end
 
-def joinor(array, sep = ", ", last_sep = " or ") # esta solucion no funciona por ..
+def joinor(array, sep = ", ", last_sep = " or ")
   new_str = ""
   array.each do |elem|
-    if elem == array[array.size-2]    #aquí si cualquier otro elemento es igual al último le va a agregar la palabra
-      new_str += elem.to_s + last_sep
-    else
-      new_str += elem.to_s + sep
-    end
+    new_str = if array.size == 1
+                new_str + elem.to_s
+              elsif elem == array[array.size - 2]
+                new_str + elem.to_s + last_sep
+              else
+                new_str + elem.to_s + sep
+              end
   end
-  new_str.chomp(', ')
+  new_str.chomp(", ")
 end
 
-def track_score(winner, player_score, computer_score)
-  if winner == "Player"
-    player_score += 1
-  elsif winner == "Computer"
-    computer_score += 1
+def match_end?(board)
+  someone_wins?(board) || board_full?(board)
+end
+
+def player_won_match?(player_score)
+  player_score == NUMBER_OF_MATCHES_TO_WIN
+end
+
+def computer_won_match?(computer_score)
+  computer_score == NUMBER_OF_MATCHES_TO_WIN
+end
+
+def display_match_winner_message(player_score, computer_score)
+  if player_won_match?(player_score)
+    prompt "You won the match!"
+  elsif computer_won_match?(computer_score)
+    prompt "Computer won the match!"
+  else
+    prompt "No winner for the match yet"
+  end
+end
+
+def play_again?
+  answer = ""
+  loop do
+    prompt <<~MSG
+      Do you want to play another match?
+         A match has #{NUMBER_OF_MATCHES_TO_WIN} games.(y or n)
+    MSG
+    answer = gets.chomp
+    if answer.downcase == "y"
+      return true
+    elsif answer.downcase == "n"
+      return false
+    else
+      prompt "Type \"y\" if you want to play again, \"n\" if you don't"
+      next
+    end
   end
 end
 
 loop do
   player_score = 0
   computer_score = 0
+  define_first_player if FIRST_PLAYER == "choose"
+  current_player = FIRST_PLAYER
   loop do
     board = initialize_board
     loop do
       display_board(board)
-      prompt "let's play. Your score is #{player_score}, the computer's score is #{computer_score}. The first to win 5 timers is the winner"
-      player_places_piece!(board)
-      break if someone_wins?(board) || board_full?(board)
-
-      computer_places_piece!(board)
-
-      break if someone_wins?(board) || board_full?(board)
+      prompt <<~MSG
+        Let's play.
+        Your score is #{player_score}, the computer's score is #{computer_score}.
+        The first to win #{NUMBER_OF_MATCHES_TO_WIN} games is the winner of the match
+      MSG
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
+      break if match_end?(board)
     end
 
     if someone_wins?(board)
-      if detect_winner(board) == "Player"
+      if player_won?(board)
         player_score += 1
-      elsif detect_winner(board) == "Computer"
+        prompt "You won this game"
+      elsif computer_won?(board)
         computer_score += 1
+        prompt "Computer won this game"
       end
+      sleep(1)
     end
+    display_match_winner_message(player_score, computer_score)
+    sleep(1)
     display_board(board)
-    break if player_score == 5 || computer_score == 5
+    break if player_score == NUMBER_OF_MATCHES_TO_WIN || computer_score == NUMBER_OF_MATCHES_TO_WIN
   end
-  if player_score == 5
-    prompt "Player won!"
-  elsif computer_score == 5
-    prompt "Computer won!"
-  else
-    prompt "it's a tie"
-  end 
-  prompt "Do you want to play again?(y or n)"
-  answer = gets.chomp
-  break unless answer.downcase.start_with?("y")
+  break unless play_again?
 end
 
 prompt "thanks for playing Tic Tac Toe. Bye!"
