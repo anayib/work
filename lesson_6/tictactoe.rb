@@ -231,18 +231,18 @@ loop do
       break if match_end?(board)
     end
 
-    if someone_wins?(board)
-      if player_won?(board)
-        player_score += 1
-        prompt "You won this game"
-      elsif computer_won?(board)
-        computer_score += 1
-        prompt "Computer won this game"
-      end
-      sleep(1)
+    if player_won?(board)
+      player_score += 1
+      prompt "You won this game"
+    elsif computer_won?(board)
+      computer_score += 1
+      prompt "Computer won this game"
     end
+    sleep(1)
+
     display_match_winner_message(player_score, computer_score)
     sleep(1)
+
     display_board(board)
     break if player_score == NUMBER_OF_MATCHES_TO_WIN || computer_score == NUMBER_OF_MATCHES_TO_WIN
   end
