@@ -1,5 +1,3 @@
-require 'pry'
-
 class Move
   attr_accessor :value
   VALUES = %w(rock paper scissors lizard spock).freeze
@@ -7,63 +5,6 @@ class Move
 
   def initialize(value)
     @value = value
-  end
-
-  def scissors?
-    @value == 'scissors'
-  end
-
-  def rock?
-    @value == 'rock'
-  end
-
-  def paper?
-    @value == 'paper'
-  end
-
-  def lizard?
-    @value == 'lizard'
-  end
-
-  def spock?
-    @value == 'spock'
-  end
-
-
-  def >(other_move)
-
-    result = false
-
-    decision_hash = {rock? => [other_move.scissors?, other_move.lizard?],
-                     paper? => [other_move.rock?, other_move.spock?],
-                     scissors? => [other_move.paper?, other_move.lizard?],
-                     lizard? => [other_move.paper?, other_move.spock?],
-                     spock? => [other_move.scissors?, other_move.rock?]}
-
-    decision_hash.each do |k, v|
-      result = true if k && v[0] || k && v[1]
-    end
-
-    return result
-
-  end
-
-  def <(other_move)
-
-    result = false
-
-    decision_hash = {rock? => [other_move.paper?, other_move.spock?],
-                     paper? => [other_move.scissors?, other_move.lizard?],
-                     scissors? => [other_move.rock?, other_move.spock?],
-                     lizard? => [other_move.rock?, other_move.scissors?],
-                     spock? => [other_move.lizard?, other_move.paper?]}
-
-    decision_hash.each do |k, v|
-      result = true if k && v[0] || k && v[1]
-    end
-
-    return result
-
   end
 
   def to_s
@@ -74,16 +15,25 @@ end
 # Player class that has a :name and a :move as attributes
 class Player
   attr_accessor :move, :name, :score, :moves_history
-
+  COMBINATIONS = { 'rock' => ['scissors', 'lizard'],
+                   'paper' => ['rock', 'spock'],
+                   'scissors' => ['paper', 'lizard'],
+                   'lizard' => ['spock', 'paper'],
+                   'spock' => ['scissors', 'rock'] }
   def initialize
     set_name
     @score = 0
     @moves_history = []
   end
+
+  def wins_against(other_player)
+    COMBINATIONS.fetch(self.move.value).include?(other_player.move.value)
+  end
 end
 
 # Human class that inherits from player class
 class Human < Player
+
   def set_name
     n = nil
     loop do
@@ -110,13 +60,20 @@ end
 # Computer class inheriting from player class
 class Computer < Player
 
+  AI_VALUES = %w(paper scissors lizard spock).freeze
+
   def set_name
     self.name = %w(Robo Huawei Sn).sample
   end
 
-  def choose
-    self.move = Move.new(Move::VALUES.sample)
-    moves_history << move.value
+  def choose(human_move, human_score)
+    if (%w(paper spock).include? human_move.value) && ((human_score + 1)/RPSGame::TOTAL_SCORE.to_f > 0.6)
+      self.move = Move.new(Move::AI_VALUES.sample)
+      moves_history << move.value
+    else
+      self.move = Move.new(Move::VALUES.sample)
+      moves_history << move.value
+    end
   end
 end
 
@@ -154,12 +111,19 @@ class RPSGame
      winner.score += 1
   end
 
+  def human_won?
+    human.wins_against(computer)
+  end
+
+  def computer_won?
+    computer.wins_against(human)
+  end
 
   def display_winner
-    if human.move > computer.move
+    if human_won?
       puts "#{human.name} wins"
       update_winner_score(human)
-    elsif human.move < computer.move
+    elsif computer_won?
       puts "#{computer.name} wins"
       update_winner_score(computer)
     else
@@ -175,6 +139,11 @@ class RPSGame
   def reset_scores
     human.score = 0
     computer.score = 0
+  end
+
+  def reset_moves_history
+    human.moves_history = []
+    computer.moves_history = []
   end
 
   def display_final_winner
@@ -202,10 +171,11 @@ class RPSGame
     loop do
       display_welcome_message
       reset_scores
+      reset_moves_history
       loop do
         display_new_round_message
         human.choose
-        computer.choose
+        computer.choose(human.move, human.score)
         display_moves
         display_winner
         break if is_over?
@@ -230,37 +200,3 @@ class RPSGame
 end
 
 RPSGame.new.play
-
-
-=begin
-Come up with some rules based on the history of moves in order for the computer to make a future move.
-For example, if the human tends to win over 60% of his hands when the computer chooses "rock",
-then decrease the likelihood of choosing "rock". You'll have to first come up with a rule
-(like the one in the previous sentence), then implement some analysis on history to see
-if the history matches that rule, then adjust the weight of each choice, and finally have
-the computer consider the weight of each choice when making the move. Right now,
-the computer has a 33% chance to make any of the 3 moves.
-
-task
-- define rules based on history of moves , so thatthe computer make future moves as follows:
-  - if human.winning_probability? > 60%
-    computer.move == "rock"
-
-  consider the weight of each choice
-
-  calculate the winning_probability for the human
-  ***********************************************
-  @wins
-  @winning_probability = wins/TOTAL_SCORE
-
-  if human wins?
-    wins += 1
-
-  Define computer move
-  *************************************************
-  inside the computer.choose method
-    if human.winning_probability > 60%
-      computer nex choice must be rock
-    else
-     computer next choice sample
-=end
