@@ -1,0 +1,28 @@
+
+[1mFrom:[0m /home/nayib/Documents/work/object_oriented_programing/ttt_game_bonus_features.rb @ line 152 TTTGame#play:
+
+    [1;34m143[0m: [32mdef[0m [1;34mplay[0m
+    [1;34m144[0m:   clear
+    [1;34m145[0m:   display_welcome_message
+    [1;34m146[0m: 
+    [1;34m147[0m:   loop [32mdo[0m
+    [1;34m148[0m:     loop [32mdo[0m
+    [1;34m149[0m:       display_board
+    [1;34m150[0m:       loop [32mdo[0m
+    [1;34m151[0m:         current_player_moves
+ => [1;34m152[0m:         [32mbreak[0m [32mif[0m board.someone_won? || board.full?
+    [1;34m153[0m:         clear_screen_and_display_board [32mif[0m human_turn?
+    [1;34m154[0m:       [32mend[0m
+    [1;34m155[0m: 
+    [1;34m156[0m:       display_result
+    [1;34m157[0m:       [32mbreak[0m [32mif[0m [human_wins, computer_wins].include? [1;34m5[0m
+    [1;34m158[0m:       reset_board
+    [1;34m159[0m:     [32mend[0m
+    [1;34m160[0m:     [32mbreak[0m [32munless[0m play_again?
+    [1;34m161[0m:     reset_board
+    [1;34m162[0m:     reset_match_scores
+    [1;34m163[0m:     display_play_again_messages
+    [1;34m164[0m:   [32mend[0m
+    [1;34m165[0m:   display_goodbye_message
+    [1;34m166[0m: [32mend[0m
+
