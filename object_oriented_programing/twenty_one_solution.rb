@@ -1,10 +1,8 @@
-require 'pry'
-
 class Participant
   attr_accessor :name, :cards
   attr_writer :total
 
-  def initialize(name)
+  def initialize
     @name = name
     @cards = []
     @total = 0
@@ -151,9 +149,9 @@ module Hand
         break
       else
         player.hit(deck.update_deck)
+        show_player_card
         break if player.busted?
       end
-      show_player_card
     end
   end
 
@@ -166,7 +164,6 @@ module Hand
       end
       break if dealer.total >= 17
     end
-    puts "#{dealer.name} has #{dealer.total}"
   end
 
   def show_player_card
@@ -174,34 +171,30 @@ module Hand
   end
 
   def show_result
-    puts "#{dealer.name} has: #{dealer.total}"
-    puts "#{dealer.name} busted!" if dealer.busted?
-    puts "#{player.name} has: #{player.total}"
-    puts "#{player.name} busted!" if player.busted?
+    if player.total > dealer.total
+      puts "#{player.name} wins!"
+    elsif player.total < dealer.total
+      puts "#{dealer.name} wins!"
+    else
+      puts "It's a tie!"
+    end
   end
 
-  def define_winner
-    if dealer.busted? && !player.busted?
-      puts "********"
-      puts "You win!"
-      puts "********"
-    elsif player.busted? && !dealer.busted?
-      puts "*******************"
-      puts "#{dealer.name} wins"
-      puts "*******************"
-    elsif player.total > dealer.total
-      puts "********"
-      puts "You win!"
-      puts "********"
-    elsif player.total == dealer.total
-      puts "***********"
-      puts "It's a tie"
-      puts "***********"
-    else
-      puts "********************"
-      puts "#{dealer.name} wins"
-      puts "********************"
+  def show_busted
+    if player.busted?
+      puts "#{dealer.name} wins. You busted with a total of: #{player.total}"
+    elsif dealer.busted?
+      puts "#{player.name} wins.#{dealer.name} busted!  with a total of: #{dealer.total}"
     end
+  end
+
+  def show_total_score
+    puts "#{dealer.name} total: #{dealer.total}"
+    puts "#{player.name} total: #{player.total}"
+  end
+
+  def is_a_tie?
+    player.total == dealer.total
   end
 end
 
@@ -210,8 +203,8 @@ class Game
   attr_accessor :player, :dealer, :deck
 
   def initialize
-    @player = Player.new(name)
-    @dealer = Dealer.new(name)
+    @player = Player.new
+    @dealer = Dealer.new
     @deck = Deck.new
   end
 
@@ -225,16 +218,41 @@ class Game
 
   def start_hand
     loop do
+      clear
       deal_cards
       show_initial_cards
+
       player_turn
+      if player.busted?
+        show_busted
+        if play_again?
+          reset
+          next_hand_message
+          sleep(2)
+          next
+        else
+          break
+        end
+      end
+
       dealer_turn
-      define_winner
+      if dealer.busted?
+        show_busted
+        if play_again?
+          reset
+          next_hand_message
+          sleep(2)
+          next
+        else
+          break
+        end
+      end
+
       show_result
-      break unless play_again?
-      clear
-      reset
+      show_total_score
+      play_again? ? reset : break
       next_hand_message
+      sleep(2)
     end
   end
 
